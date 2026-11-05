@@ -63,20 +63,11 @@
   }), { rootMargin: '200px' });
   $$('video[data-lazy], .hero video').forEach(v => vio.observe(v));
 
-  /* equalizador do card de som */
-  const eq = $('#eq');
-  const bars = Array.from({ length: 24 }, () => { const i = document.createElement('i'); eq.appendChild(i); return i; });
-  let eqOn = false;
-  new IntersectionObserver(([e]) => (eqOn = e.isIntersecting)).observe(eq);
-  setInterval(() => {
-    if (!eqOn) return;
-    const t = performance.now() / 1000;
-    bars.forEach((b, i) => {
-      const bass = i < 6 ? .55 + .45 * Math.abs(Math.sin(t * 4.2)) : 0;
-      const h = Math.max(.08, Math.min(1, bass * (1 - i / 9) + .15 + .55 * Math.random() * (1 - i / 34)));
-      b.style.height = (h * 100) + '%';
-    });
-  }, 110);
+  /* monster club: cada plano abre o zap já com o plano escrito */
+  $$('[data-plan]').forEach(b => b.addEventListener('click', () => {
+    const msg = 'Oi Monster! Vi o site e quero entrar no Monster Club, plano ' + b.dataset.plan + '.';
+    open('https://wa.me/' + ZAP + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  }));
 
   /* simulador */
   const notes = [
@@ -219,6 +210,21 @@
     // reveals genéricos
     $$('.h2, .sim__stage, .sim__ctrl, .os__card, .loja__addr, .loja__ctas, .ft__big').forEach(el =>
       gsap.from(el, { y: 40, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%' } }));
+
+    // garagem: carros sobem em cascata, colunas com velocidades diferentes
+    mm.add('(min-width:701px)', () => {
+      $$('.car').forEach((el, i) => gsap.fromTo(el, { y: 80 + (i % 3) * 50 }, { y: -(i % 3) * 30, ease: 'none', scrollTrigger: { trigger: '.garagem__grid', start: 'top bottom', end: 'bottom top', scrub: true } }));
+    });
+    gsap.from('.car', { opacity: 0, duration: 1, ease: 'power3.out', stagger: .08, scrollTrigger: { trigger: '.garagem__grid', start: 'top 85%' } });
+
+    // ppf: vídeo abre de cima pra baixo como a película sendo puxada
+    gsap.from('.ppf__media', { clipPath: 'inset(0 0 100% 0)', ease: 'none', scrollTrigger: { trigger: '.ppf', start: 'top 80%', end: 'top 20%', scrub: true } });
+    gsap.from('.ppf__price b', { scale: .7, opacity: 0, duration: 1.1, ease: 'back.out(1.6)', scrollTrigger: { trigger: '.ppf__price', start: 'top 85%' } });
+
+    // arquitetônico, acessórios e club
+    gsap.from('.arq__v', { y: 60, opacity: 0, duration: 1, ease: 'power3.out', stagger: .1, scrollTrigger: { trigger: '.arq__wall', start: 'top 85%' } });
+    gsap.from('.acc__chips li', { y: 20, opacity: 0, duration: .5, ease: 'power2.out', stagger: .03, scrollTrigger: { trigger: '.acc__chips', start: 'top 88%' } });
+    gsap.from('.plan', { y: 80, opacity: 0, duration: 1, ease: 'power3.out', stagger: .12, scrollTrigger: { trigger: '.plans', start: 'top 85%' } });
 
     // loja: vídeo abre como vitrine
     gsap.from('.loja__media', { clipPath: 'inset(0 100% 0 0)', ease: 'none', scrollTrigger: { trigger: '.loja', start: 'top 85%', end: 'top 25%', scrub: true } });
