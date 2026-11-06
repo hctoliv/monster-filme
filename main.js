@@ -62,6 +62,13 @@
     else v.pause();
   }), { rootMargin: '200px' });
   $$('video[data-lazy], .hero video').forEach(v => vio.observe(v));
+  // iOS em modo pouca energia bloqueia autoplay: no primeiro toque, solta os vídeos que estão na tela
+  const kick = () => $$('.hero video, video[data-lazy]').forEach(v => {
+    const r = v.getBoundingClientRect();
+    if (r.bottom > 0 && r.top < innerHeight && v.paused && v.muted) v.play().catch(() => {});
+  });
+  ['touchend', 'click', 'scroll'].forEach(ev => addEventListener(ev, kick, { passive: true }));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
 
   /* monster club: cada plano abre o zap já com o plano escrito */
   $$('[data-plan]').forEach(b => b.addEventListener('click', () => {
